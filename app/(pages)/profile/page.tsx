@@ -172,7 +172,7 @@ export default function ProfilePage() {
           </div>
           <div className="w-full flex flex-col justify-center items-center">
             <Tabs defaultValue="post" className="w-full flex gap-11 flex-col justify-center items-center">
-              <TabsList className=" w-full sm:w-[500px]">
+              <TabsList  className=" w-full sm:w-[500px]">
                 <TabsTrigger value="post">Post</TabsTrigger>
                 <TabsTrigger value="followers">Followers</TabsTrigger>
                 <TabsTrigger value="following">Following</TabsTrigger>

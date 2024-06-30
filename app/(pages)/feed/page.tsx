@@ -99,10 +99,10 @@ export default function Feed() {
       >
         Write
       </button>
-
+  
       {isModalOpen && (
-        <div className="fixed  sm:inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white sm:p-6 rounded-lg shadow-lg sm:w-1/2">
+        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg w-[90%] sm:w-1/2 max-w-lg mx-auto">
             <h2 className="text-2xl mb-4">New Post</h2>
             <textarea
               value={newPostContent}
@@ -128,10 +128,10 @@ export default function Feed() {
           </div>
         </div>
       )}
-
-      <div className=" w-full justify-center items-center flex flex-col">
+  
+      <div className="w-full justify-center items-center flex flex-col">
         {posts.map((post) => (
-          <div key={post.id} className="p-4 mb-4 border rounded-lg shadow-md w-[90%] sm:w-1/2">
+          <div key={post.id} className="p-4 mb-4 border rounded-lg shadow-md w-[90%] sm:w-1/2 max-w-lg">
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center">
                 <div className="w-10 h-10 rounded-full bg-gray-300 mr-4"></div>
@@ -139,10 +139,10 @@ export default function Feed() {
               </div>
               <p className="text-gray-400 text-sm">{post.timestamp}</p>
             </div>
-            <p className="text-gray-600 w-[300px] sm:w-[400px] line-clamp-2">{post.content}</p>
+            <p className="text-gray-600">{post.content}</p>
           </div>
         ))}
       </div>
     </div>
   );
-}
+}  
