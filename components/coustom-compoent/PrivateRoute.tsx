@@ -22,7 +22,7 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
     const checkAuth = async () => {
       setLoader(true); // Ensure loader is set to true when starting the auth check
 
-      const token = getTokenFromCookie("authToken");
+      const token = getTokenFromCookie("email");
 
       const currentPath = pathname;
       if (!token) {

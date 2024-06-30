@@ -65,7 +65,7 @@ export default function Page() {
         const token = Math.random().toString(36).substr(2);
 
         // Set token in cookies
-        setCookie("authToken", token, 7);
+        setCookie("email",user.email, 7);
 
         toast.success("Login successful!");
 

@@ -21,7 +21,6 @@ interface User {
   email: string;
   following: string[];
   followers: string[];
-  posts: string[];
   password: string;
 }
 
@@ -83,7 +82,6 @@ export default function Page() {
       email: data.email,
       following: [],
       followers: [],
-      posts: [],
       password: data.password,
     };
 
