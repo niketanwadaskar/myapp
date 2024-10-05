@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import toast, { Toaster } from "react-hot-toast";
-import firebaseApp, { db } from "./../../../lib/firebase";
+import firebaseApp from "./../../../lib/firebase";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Following from "@/components/profileTabs/Following";
 import Followers from "@/components/profileTabs/Followers";
@@ -30,6 +30,7 @@ interface Post {
   author: string;
   timestamp: string;
   content: string;
+  ref:any
 }
 
 export default function ProfilePage() {
@@ -48,16 +49,22 @@ export default function ProfilePage() {
           where("email", "==", currentUser.email)
         );
         const postsSnapshot = await getDocs(postsQuery);
-        const postsList = postsSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...(doc.data() as Omit<Post, "id">),
+        
+        const postsList = postsSnapshot.docs.map((docSnapshot) => ({
+          //@ts-ignore
+          ref: docSnapshot.ref, // Store the reference to the document
+          id: docSnapshot.id, // Optional: Keep ID for debugging purposes if needed
+          ...(docSnapshot.data() as Omit<Post, "id">),
         }));
+  
         setPosts(postsList);
       } catch (error) {
         console.error("Error fetching posts:", error);
       }
     }
   };
+
+  // function ()
 
   const fetchFollowersAndFollowing = async (currentUser: User) => {
     if (currentUser) {
@@ -171,36 +178,31 @@ export default function ProfilePage() {
       }
     }
   };
+  
 
-  const handleUpdatePost = async (updatedPost: Post) => {
-    if (!updatedPost.id) {
-      console.error("Post ID is required to update the post.");
-      return;
-    }
 
-    try {
-      // Reference to the post document in Firestore
-      const postRef = doc(firestore, "posts", updatedPost.id);
+const handleUpdatePost = async (updatedPost: { ref: any, content: string }) => {
+  try {
 
-      // Update the post content in Firestore
-      await updateDoc(postRef, {
-        content: updatedPost.content, // Only updating the content field
-        timestamp: new Date().toISOString(), // Update timestamp if needed
-      });
+    // Perform the update using the saved document reference
+    await updateDoc(updatedPost.ref, {
+      content: updatedPost.content,
+      timestamp: new Date().toISOString(), // Update timestamp if needed
+    });
 
-      // Update the local state with the updated post
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post.id === updatedPost.id ? updatedPost : post
-        )
-      );
+    // Update local state with the updated post
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.ref === updatedPost.ref ? { ...post, content: updatedPost.content } : post
+      )
+    );
 
-      toast.success("Post updated successfully.");
-    } catch (error) {
-      console.error("Error updating post:", error);
-      toast.error("Failed to update post. Please try again.");
-    }
-  };
+    toast.success("Post updated successfully.");
+  } catch (error) {
+    console.error("Error updating post:", error);
+    toast.error("Failed to update post. Please try again.");
+  }
+};
 
   return (
     <div className="w-full pt-8 flex-col flex justify-center items-center bg-white lg:px-32 md:px-16 sm:px-11 px-2 pt-10">

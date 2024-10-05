@@ -7,6 +7,7 @@ type Post = {
   author: string;
   content: string;
   timestamp: string;
+  ref:any
 };
 
 export default function Posts({ posts, handleUpdatePost }: { posts: Post[], handleUpdatePost: (post: Post) => void }) {
