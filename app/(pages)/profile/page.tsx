@@ -40,6 +40,55 @@ export default function ProfilePage() {
   const firestore = getFirestore(firebaseApp);
   const auth = getAuth(firebaseApp);
 
+  const fetchPosts = async (currentUser: User) => {
+    if (currentUser) {
+      try {
+        const postsQuery = query(
+          collection(firestore, "posts"),
+          where("email", "==", currentUser.email)
+        );
+        const postsSnapshot = await getDocs(postsQuery);
+        const postsList = postsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<Post, "id">),
+        }));
+        setPosts(postsList);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    }
+  };
+
+  const fetchFollowersAndFollowing = async (currentUser: User) => {
+    if (currentUser) {
+      try {
+        const followersQuery = query(
+          collection(firestore, "users"),
+          where("following", "array-contains", currentUser.email)
+        );
+        const followersSnapshot = await getDocs(followersQuery);
+        const followersList = followersSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<User, "id">),
+        }));
+        setFollowers(followersList);
+
+        const followingQuery = query(
+          collection(firestore, "users"),
+          where("followers", "array-contains", currentUser.email)
+        );
+        const followingSnapshot = await getDocs(followingQuery);
+        const followingList = followingSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<User, "id">),
+        }));
+        setFollowing(followingList);
+      } catch (error) {
+        console.error("Error fetching followers and following:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     const fetchCurrentUser = async () => {
       const email = getCookie("email");
@@ -59,6 +108,8 @@ export default function ProfilePage() {
         if (!userSnapshot.empty) {
           const userData = userSnapshot.docs[0].data() as Omit<User, "id">;
           setCurrentUser({ id: userSnapshot.docs[0].id, ...userData });
+          fetchPosts({ id: userSnapshot.docs[0].id, ...userData });
+          fetchFollowersAndFollowing({ id: userSnapshot.docs[0].id, ...userData });
         } else {
           console.log("No user found with this email.");
         }
@@ -66,60 +117,8 @@ export default function ProfilePage() {
         console.error("Error fetching current user:", error);
       }
     };
-
-    const fetchPosts = async () => {
-      if (currentUser) {
-        try {
-          const postsQuery = query(
-            collection(firestore, "posts"),
-            where("email", "==", currentUser.email)
-          );
-          const postsSnapshot = await getDocs(postsQuery);
-          const postsList = postsSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...(doc.data() as Omit<Post, "id">),
-          }));
-          setPosts(postsList);
-        } catch (error) {
-          console.error("Error fetching posts:", error);
-        }
-      }
-    };
-
-    const fetchFollowersAndFollowing = async () => {
-      if (currentUser) {
-        try {
-          const followersQuery = query(
-            collection(firestore, "users"),
-            where("following", "array-contains", currentUser.email)
-          );
-          const followersSnapshot = await getDocs(followersQuery);
-          const followersList = followersSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...(doc.data() as Omit<User, "id">),
-          }));
-          setFollowers(followersList);
-
-          const followingQuery = query(
-            collection(firestore, "users"),
-            where("followers", "array-contains", currentUser.email)
-          );
-          const followingSnapshot = await getDocs(followingQuery);
-          const followingList = followingSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...(doc.data() as Omit<User, "id">),
-          }));
-          setFollowing(followingList);
-        } catch (error) {
-          console.error("Error fetching followers and following:", error);
-        }
-      }
-    };
-
     fetchCurrentUser();
-    fetchPosts();
-    fetchFollowersAndFollowing();
-  }, [firestore, auth, currentUser]);
+  }, [firestore, auth]);
 
   const handleFollow = async (userToFollow: User) => {
     if (currentUser) {
@@ -178,29 +177,30 @@ export default function ProfilePage() {
       console.error("Post ID is required to update the post.");
       return;
     }
-  
+
     try {
       // Reference to the post document in Firestore
       const postRef = doc(firestore, "posts", updatedPost.id);
-  
+
       // Update the post content in Firestore
       await updateDoc(postRef, {
         content: updatedPost.content, // Only updating the content field
         timestamp: new Date().toISOString(), // Update timestamp if needed
       });
-  
+
       // Update the local state with the updated post
       setPosts((prevPosts) =>
-        prevPosts.map((post) => (post.id === updatedPost.id ? updatedPost : post))
+        prevPosts.map((post) =>
+          post.id === updatedPost.id ? updatedPost : post
+        )
       );
-  
+
       toast.success("Post updated successfully.");
     } catch (error) {
       console.error("Error updating post:", error);
       toast.error("Failed to update post. Please try again.");
     }
   };
-  
 
   return (
     <div className="w-full pt-8 flex-col flex justify-center items-center bg-white lg:px-32 md:px-16 sm:px-11 px-2 pt-10">
@@ -231,7 +231,7 @@ export default function ProfilePage() {
                 <TabsTrigger value="following">Following</TabsTrigger>
               </TabsList>
               <TabsContent value="post">
-                {/* <Posts posts={posts} handleUpdatePost={handleUpdatePost} /> */}
+                <Posts posts={posts} handleUpdatePost={handleUpdatePost} />
               </TabsContent>
               <TabsContent value="followers">
                 <Followers
