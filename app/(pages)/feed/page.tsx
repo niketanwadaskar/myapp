@@ -93,12 +93,15 @@ export default function Feed() {
   return (
     <div className="bg-white lg:px-32 md:px-16 sm:px-11 px-2 pt-10">
       <Toaster />
+      <div className="justify-center relative ml-4 md:left-56 items-center flex flex-col w-fit">
+
       <button
         onClick={() => setIsModalOpen(true)}
         className="bg-[#ff748d] text-white px-4 py-2 rounded-md mb-4"
-      >
+        >
         Write
       </button>
+        </div>
   
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
