@@ -187,7 +187,7 @@ const handleUpdatePost = async (updatedPost: { ref: any, content: string }) => {
     // Perform the update using the saved document reference
     await updateDoc(updatedPost.ref, {
       content: updatedPost.content,
-      timestamp: new Date().toISOString(), // Update timestamp if needed
+      timestamp: new Date().toLocaleString(), // Update timestamp if needed
     });
 
     // Update local state with the updated post
