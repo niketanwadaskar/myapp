@@ -23,7 +23,7 @@ export default function Followers({
       {followers.map((user) => (
         <li
           key={user.id}
-          className="flex my-2 justify-between items-center p-4 border border-gray-300 rounded-lg shadow-sm"
+          className="flex my-2  justify-between items-center p-4 border border-gray-300 rounded-lg shadow-sm"
         >
           <div className="flex gap-5">
             <div className="w-12 h-12 overflow-hidden rounded-full border bg-white text-gray-300 uppercase flex justify-center items-center font-bold text-2xl">
